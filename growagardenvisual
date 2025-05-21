@@ -11,8 +11,8 @@ gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 200, 0, 160)
-main.Position = UDim2.new(0.5, -100, 0.5, -80)
+main.Size = UDim2.new(0, 200, 0, 200) -- Increased height to accommodate new toggle
+main.Position = UDim2.new(0.5, -100, 0.5, -100) -- Adjusted position for new height
 main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 main.BorderSizePixel = 0
 main.Parent = gui
@@ -176,8 +176,9 @@ local function makeToggle(text)
     end)
 end
 
--- Create the toggle
+-- Create the toggles
 makeToggle("Auto Gift")
+makeToggle("Freeze Player")  -- Added the new toggle here
 
 -- Minimize Function
 local minimized = false
