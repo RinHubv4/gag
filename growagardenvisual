@@ -7,48 +7,26 @@ local TS = game:GetService("TweenService")
 local gui = Instance.new("ScreenGui")
 gui.ResetOnSpawn = false
 gui.Name = "RinHubUI"
-gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Wait for PlayerGui
-local player = Players.LocalPlayer
-while not player:FindFirstChild("PlayerGui") do
-    task.wait()
-end
-gui.Parent = player.PlayerGui
-
--- Helper function for corners
-local function createUICorner(parent, radius)
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, radius or 6)
-    corner.Parent = parent
-    return corner
-end
+gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 200, 0, 250) -- Increased height for new button
-main.Position = UDim2.new(0.5, -100, 0.5, -125)
+main.Size = UDim2.new(0, 200, 0, 0) -- Width only
+main.AutomaticSize = Enum.AutomaticSize.Y
+main.Position = UDim2.new(0.5, -100, 0.5, -100)
 main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 main.BorderSizePixel = 0
-main.ZIndex = 10
 main.Parent = gui
 
-createUICorner(main, 10)
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = main
 
 local stroke = Instance.new("UIStroke")
 stroke.Color = Color3.fromRGB(9, 255, 182)
 stroke.Thickness = 2
 stroke.Transparency = 0.3
 stroke.Parent = main
-
--- Background
-local bg = Instance.new("Frame")
-bg.Size = UDim2.new(1, -10, 1, -40)
-bg.Position = UDim2.new(0, 5, 0, 35)
-bg.BackgroundColor3 = Color3.fromRGB(9, 255, 182)
-bg.BorderSizePixel = 0
-bg.Parent = main
-createUICorner(bg)
 
 -- Title Bar
 local titleBar = Instance.new("Frame")
@@ -78,7 +56,10 @@ minimizeBtn.Text = "_"
 minimizeBtn.Font = Enum.Font.GothamBold
 minimizeBtn.TextSize = 18
 minimizeBtn.Parent = titleBar
-createUICorner(minimizeBtn)
+
+local minCorner = Instance.new("UICorner")
+minCorner.CornerRadius = UDim.new(0, 6)
+minCorner.Parent = minimizeBtn
 
 -- Exit Button
 local exitBtn = Instance.new("TextButton")
@@ -91,13 +72,17 @@ exitBtn.Text = "X"
 exitBtn.Font = Enum.Font.GothamBold
 exitBtn.TextSize = 14
 exitBtn.Parent = titleBar
-createUICorner(exitBtn)
+
+local exitCorner = Instance.new("UICorner")
+exitCorner.CornerRadius = UDim.new(0, 6)
+exitCorner.Parent = exitBtn
 
 -- Content Frame
 local contentFrame = Instance.new("Frame")
-contentFrame.Size = UDim2.new(1, -10, 1, -45)
+contentFrame.Size = UDim2.new(1, -10, 0, 0)
 contentFrame.Position = UDim2.new(0.5, 0, 0, 35)
 contentFrame.AnchorPoint = Vector2.new(0.5, 0)
+contentFrame.AutomaticSize = Enum.AutomaticSize.Y
 contentFrame.BackgroundTransparency = 1
 contentFrame.Parent = main
 
@@ -119,21 +104,22 @@ usernameInput.TextSize = 14
 usernameInput.Text = ""
 usernameInput.ClearTextOnFocus = false
 usernameInput.Parent = contentFrame
-createUICorner(usernameInput)
 
--- Toggle management
-local toggles = {
-    ["Auto Gift"] = false,
-    ["Freeze Player"] = false
-}
+local inputCorner = Instance.new("UICorner")
+inputCorner.CornerRadius = UDim.new(0, 6)
+inputCorner.Parent = usernameInput
 
+-- Toggle Creator
 local function makeToggle(text)
     local base = Instance.new("Frame")
     base.Size = UDim2.new(0, 160, 0, 30)
     base.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
     base.BorderSizePixel = 0
     base.Parent = contentFrame
-    createUICorner(base)
+
+    local baseCorner = Instance.new("UICorner")
+    baseCorner.CornerRadius = UDim.new(0, 6)
+    baseCorner.Parent = base
 
     local txt = Instance.new("TextLabel")
     txt.Size = UDim2.new(1, -60, 1, 0)
@@ -153,22 +139,29 @@ local function makeToggle(text)
     btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     btn.Text = ""
     btn.Parent = base
-    createUICorner(btn, 10)
+
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(1, 0)
+    btnCorner.Parent = btn
 
     local dot = Instance.new("Frame")
     dot.Size = UDim2.new(0, 16, 0, 16)
     dot.Position = UDim2.new(0, 2, 0.5, -8)
     dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     dot.Parent = btn
-    createUICorner(dot, 10)
 
+    local dotCorner = Instance.new("UICorner")
+    dotCorner.CornerRadius = UDim.new(1, 0)
+    dotCorner.Parent = dot
+
+    local on = false
     btn.MouseButton1Click:Connect(function()
-        toggles[text] = not toggles[text]
+        on = not on
         TS:Create(btn, TweenInfo.new(0.2), {
-            BackgroundColor3 = toggles[text] and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(0, 0, 0)
+            BackgroundColor3 = on and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(0, 0, 0)
         }):Play()
         TS:Create(dot, TweenInfo.new(0.2), {
-            Position = toggles[text] and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
+            Position = on and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
         }):Play()
     end)
 end
@@ -177,110 +170,30 @@ end
 makeToggle("Auto Gift")
 makeToggle("Freeze Player")
 
--- Duplicate Item Button
-local duplicateBtn = Instance.new("TextButton")
-duplicateBtn.Size = UDim2.new(0, 160, 0, 30)
-duplicateBtn.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
-duplicateBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
-duplicateBtn.Text = "Duplicate Item"
-duplicateBtn.Font = Enum.Font.Gotham
-duplicateBtn.TextSize = 14
-duplicateBtn.Parent = contentFrame
-createUICorner(duplicateBtn)
-
--- Store all connections for cleanup
-local connections = {}
-
--- Duplicate Functionality
-table.insert(connections, duplicateBtn.MouseButton1Click:Connect(function()
-    -- Visual feedback
-    TS:Create(duplicateBtn, TweenInfo.new(0.1), {
-        BackgroundColor3 = Color3.fromRGB(0, 200, 100),
-        TextColor3 = Color3.fromRGB(255, 255, 255)
-    }):Play()
-    
-    -- Get player and character
-    local player = Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    
-    -- Check if player is holding something
-    local rightHand = character:FindFirstChild("RightHand")
-    if not rightHand then 
-        warn("RightHand not found!")
-        return 
-    end
-    
-    local heldItem = rightHand:FindFirstChildWhichIsA("Tool")
-    if not heldItem then 
-        warn("Not holding any item!")
-        return 
-    end
-    
-    -- Check for existing duplicate
-    if rightHand:FindFirstChild(heldItem.Name.."_Clone") then
-        warn("Already has a duplicate!")
-        return
-    end
-    
-    -- Create visual duplicate
-    local clone = heldItem:Clone()
-    clone.Name = heldItem.Name.."_Clone"
-    clone.Parent = rightHand
-    
-    -- Remove sell functionality (educational purposes only)
-    for _,v in pairs(clone:GetDescendants()) do
-        if v.Name:lower():find("sell") then
-            v:Destroy()
-        end
-    end
-    
-    -- Position the clone slightly offset
-    if clone:FindFirstChild("Handle") then
-        clone.Handle.CFrame = clone.Handle.CFrame * CFrame.new(0, 0.5, 0)
-        TS:Create(clone.Handle, TweenInfo.new(0.3), {
-            Transparency = 0.5
-        }):Play()
-    end
-    
-    warn("Created visual duplicate of "..heldItem.Name)
-    
-    -- Reset button color
-    task.delay(0.3, function()
-        TS:Create(duplicateBtn, TweenInfo.new(0.2), {
-            BackgroundColor3 = Color3.fromRGB(3, 244, 202),
-            TextColor3 = Color3.fromRGB(0, 0, 0)
-        }):Play()
-    end)
-end))
-
 -- Minimize Function
 local minimized = false
-local originalSize = main.Size
 local minimizedSize = UDim2.new(0, 200, 0, 30)
 
-table.insert(connections, minimizeBtn.MouseButton1Click:Connect(function()
+minimizeBtn.MouseButton1Click:Connect(function()
     minimized = not minimized
-    TS:Create(main, TweenInfo.new(0.3), {
-        Size = minimized and minimizedSize or originalSize
-    }):Play()
-    contentFrame.Visible = not minimized
-    bg.Visible = not minimized
-end))
+    if minimized then
+        contentFrame.Visible = false
+        TS:Create(main, TweenInfo.new(0.3), {Size = minimizedSize}):Play()
+    else
+        contentFrame.Visible = true
+        TS:Create(main, TweenInfo.new(0.3), {Size = UDim2.new(0, 200, 0, 0)}):Play()
+    end
+end)
 
 -- Exit Function
-table.insert(connections, exitBtn.MouseButton1Click:Connect(function()
-    -- Clean up all connections
-    for _, conn in ipairs(connections) do
-        conn:Disconnect()
-    end
-    
+exitBtn.MouseButton1Click:Connect(function()
     TS:Create(main, TweenInfo.new(0.2), {
         Size = UDim2.new(0, 0, 0, 0),
         Position = UDim2.new(0.5, 0, 0.5, 0)
     }):Play()
     task.wait(0.2)
     gui:Destroy()
-end))
+end)
 
 -- Dragging Support
 local dragging
@@ -288,7 +201,17 @@ local dragInput
 local dragStart
 local startPos
 
-table.insert(connections, titleBar.InputBegan:Connect(function(input)
+local function update(input)
+    local delta = input.Position - dragStart
+    main.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+titleBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
@@ -300,16 +223,10 @@ table.insert(connections, titleBar.InputBegan:Connect(function(input)
             end
         end)
     end
-end))
+end)
 
-table.insert(connections, UIS.InputChanged:Connect(function(input)
+UIS.InputChanged:Connect(function(input)
     if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - dragStart
-        main.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
+        update(input)
     end
-end))
+end)
