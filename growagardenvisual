@@ -11,9 +11,8 @@ gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 200, 0, 0) -- Width only
-main.AutomaticSize = Enum.AutomaticSize.Y
-main.Position = UDim2.new(0.5, -100, 0.5, -100)
+main.Size = UDim2.new(0, 200, 0, 200) -- Increased height to accommodate new toggle
+main.Position = UDim2.new(0.5, -100, 0.5, -100) -- Adjusted position for new height
 main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 main.BorderSizePixel = 0
 main.Parent = gui
@@ -27,6 +26,18 @@ stroke.Color = Color3.fromRGB(9, 255, 182)
 stroke.Thickness = 2
 stroke.Transparency = 0.3
 stroke.Parent = main
+
+-- Background
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(1, -10, 1, -40)
+bg.Position = UDim2.new(0, 5, 0, 35)
+bg.BackgroundColor3 = Color3.fromRGB(9, 255, 182)
+bg.BorderSizePixel = 0
+bg.Parent = main
+
+local bgCorner = Instance.new("UICorner")
+bgCorner.CornerRadius = UDim.new(0, 6)
+bgCorner.Parent = bg
 
 -- Title Bar
 local titleBar = Instance.new("Frame")
@@ -79,10 +90,9 @@ exitCorner.Parent = exitBtn
 
 -- Content Frame
 local contentFrame = Instance.new("Frame")
-contentFrame.Size = UDim2.new(1, -10, 0, 0)
+contentFrame.Size = UDim2.new(1, -10, 1, -45)
 contentFrame.Position = UDim2.new(0.5, 0, 0, 35)
 contentFrame.AnchorPoint = Vector2.new(0.5, 0)
-contentFrame.AutomaticSize = Enum.AutomaticSize.Y
 contentFrame.BackgroundTransparency = 1
 contentFrame.Parent = main
 
@@ -109,7 +119,7 @@ local inputCorner = Instance.new("UICorner")
 inputCorner.CornerRadius = UDim.new(0, 6)
 inputCorner.Parent = usernameInput
 
--- Toggle Creator
+-- Auto Gift Toggle
 local function makeToggle(text)
     local base = Instance.new("Frame")
     base.Size = UDim2.new(0, 160, 0, 30)
@@ -168,21 +178,20 @@ end
 
 -- Create the toggles
 makeToggle("Auto Gift")
-makeToggle("Freeze Player")
+makeToggle("Freeze Player")  -- Added the new toggle here
 
 -- Minimize Function
 local minimized = false
+local originalSize = main.Size
 local minimizedSize = UDim2.new(0, 200, 0, 30)
 
 minimizeBtn.MouseButton1Click:Connect(function()
     minimized = not minimized
-    if minimized then
-        contentFrame.Visible = false
-        TS:Create(main, TweenInfo.new(0.3), {Size = minimizedSize}):Play()
-    else
-        contentFrame.Visible = true
-        TS:Create(main, TweenInfo.new(0.3), {Size = UDim2.new(0, 200, 0, 0)}):Play()
-    end
+    TS:Create(main, TweenInfo.new(0.3), {
+        Size = minimized and minimizedSize or originalSize
+    }):Play()
+    contentFrame.Visible = not minimized
+    bg.Visible = not minimized
 end)
 
 -- Exit Function
