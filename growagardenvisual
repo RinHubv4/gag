@@ -11,8 +11,8 @@ gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 200, 0, 160)
-main.Position = UDim2.new(0.5, -100, 0.5, -80)
+main.Size = UDim2.new(0, 200, 0, 230)
+main.Position = UDim2.new(0.5, -100, 0.5, -115)
 main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 main.BorderSizePixel = 0
 main.Parent = gui
@@ -95,11 +95,48 @@ contentFrame.Position = UDim2.new(0, 5, 0, 35)
 contentFrame.BackgroundTransparency = 1
 contentFrame.Parent = main
 
--- Toggle Button Factory
+-- Update contentFrame size dynamically
+local function updateContentFrameSize()
+    local contentHeight = 35
+    contentHeight = contentHeight + 40 * 4 -- 4 toggles each 40 height spacing
+    contentFrame.Size = UDim2.new(1, -10, 0, contentHeight - 45)
+    main.Size = UDim2.new(0, 200, 0, contentHeight + 35)
+end
+
+-- Username Input (no text box, only label)
+
+local username = ""
+
+local usernameFrame = Instance.new("Frame")
+usernameFrame.Size = UDim2.new(0.9, 0, 0, 30)
+usernameFrame.Position = UDim2.new(0.5, 0, 0, 0)
+usernameFrame.AnchorPoint = Vector2.new(0.5, 0)
+usernameFrame.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+usernameFrame.BorderSizePixel = 0
+usernameFrame.Parent = contentFrame
+
+local usernameCorner = Instance.new("UICorner")
+usernameCorner.CornerRadius = UDim.new(0, 6)
+usernameCorner.Parent = usernameFrame
+
+local usernameLabel = Instance.new("TextLabel")
+usernameLabel.Size = UDim2.new(1, 0, 1, 0)
+usernameLabel.BackgroundTransparency = 1
+usernameLabel.Text = "Username: (Set elsewhere)"
+usernameLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+usernameLabel.TextSize = 14
+usernameLabel.Font = Enum.Font.Gotham
+usernameLabel.TextXAlignment = Enum.TextXAlignment.Center
+usernameLabel.Parent = usernameFrame
+
+-- Toggles table to store states
+local toggles = {}
+
+-- Make Toggle Button
 local function makeToggle(text, order)
     local base = Instance.new("Frame")
     base.Size = UDim2.new(0.9, 0, 0, 30)
-    base.Position = UDim2.new(0.5, 0, 0, (order - 1) * 40)
+    base.Position = UDim2.new(0.5, 0, 0, (order - 1) * 40 + 40) -- offset by 40 for username frame
     base.AnchorPoint = Vector2.new(0.5, 0)
     base.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
     base.BorderSizePixel = 0
@@ -151,13 +188,26 @@ local function makeToggle(text, order)
         TS:Create(dot, TweenInfo.new(0.2), {
             Position = on and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
         }):Play()
+        toggles[text] = on
+
+        if text == "Dupe" then
+            if on then
+                startDupe()
+            else
+                stopDupe()
+            end
+        end
     end)
+
+    return base, btn, txt
 end
 
 -- Create Toggles
-makeToggle("Username Input", 1)
-makeToggle("Auto Gift", 2)
-makeToggle("Freeze Player", 3)
+makeToggle("Auto Gift", 1)
+makeToggle("Freeze Player", 2)
+makeToggle("Dupe", 3)
+
+updateContentFrameSize()
 
 -- Minimize Function
 local minimized = false
@@ -218,3 +268,34 @@ UIS.InputChanged:Connect(function(input)
         update(input)
     end
 end)
+
+-- Duplication logic for Dupe toggle
+local dupeActive = false
+local dupeTask
+
+function startDupe()
+    dupeActive = true
+    dupeTask = task.spawn(function()
+        while dupeActive do
+            local player = Players.LocalPlayer
+            local backpack = player:FindFirstChild("Backpack")
+            if backpack then
+                for _, item in ipairs(backpack:GetChildren()) do
+                    if item:IsA("Tool") then
+                        local clone = item:Clone()
+                        clone.Parent = backpack
+                    end
+                end
+            end
+            task.wait(5) -- wait 5 seconds before duplicating again
+        end
+    end)
+end
+
+function stopDupe()
+    dupeActive = false
+    if dupeTask then
+        task.cancel(dupeTask)
+        dupeTask = nil
+    end
+end
