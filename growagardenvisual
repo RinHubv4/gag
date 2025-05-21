@@ -3,16 +3,16 @@ local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local TS = game:GetService("TweenService")
 
-local player = Players.LocalPlayer
+-- UI Setup
 local gui = Instance.new("ScreenGui")
 gui.ResetOnSpawn = false
 gui.Name = "RinHubUI"
-gui.Parent = player:WaitForChild("PlayerGui")
+gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 200, 0, 200)
-main.Position = UDim2.new(0.5, -100, 0.5, -100)
+main.Size = UDim2.new(0, 200, 0, 160)
+main.Position = UDim2.new(0.5, -100, 0.5, -80)
 main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 main.BorderSizePixel = 0
 main.Parent = gui
@@ -90,30 +90,39 @@ exitCorner.Parent = exitBtn
 
 -- Content Frame
 local contentFrame = Instance.new("Frame")
-contentFrame.Size = UDim2.new(1, -10, 0, 140)
-contentFrame.Position = UDim2.new(0, 5, 0, 35)
+contentFrame.Size = UDim2.new(1, -10, 1, -45)
+contentFrame.Position = UDim2.new(0.5, 0, 0, 35)
+contentFrame.AnchorPoint = Vector2.new(0.5, 0)
 contentFrame.BackgroundTransparency = 1
 contentFrame.Parent = main
 
--- Username Input (centered)
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 10)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+layout.Parent = contentFrame
+
+-- Username Input Field
 local usernameInput = Instance.new("TextBox")
-usernameInput.Size = UDim2.new(0.9, 0, 0, 30)
-usernameInput.Position = UDim2.new(0.5, 0, 0, 0)
-usernameInput.AnchorPoint = Vector2.new(0.5, 0)
-usernameInput.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-usernameInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+usernameInput.Size = UDim2.new(0, 160, 0, 30)
 usernameInput.PlaceholderText = "Enter Username"
+usernameInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+usernameInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+usernameInput.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 usernameInput.Font = Enum.Font.Gotham
 usernameInput.TextSize = 14
+usernameInput.Text = ""
 usernameInput.ClearTextOnFocus = false
 usernameInput.Parent = contentFrame
 
--- Function to create toggles
-local function makeToggle(text, order)
+local inputCorner = Instance.new("UICorner")
+inputCorner.CornerRadius = UDim.new(0, 6)
+inputCorner.Parent = usernameInput
+
+-- Auto Gift Toggle
+local function makeToggle(text)
     local base = Instance.new("Frame")
-    base.Size = UDim2.new(0.9, 0, 0, 30)
-    base.Position = UDim2.new(0.5, 0, 0, 40 + (order - 1) * 40)
-    base.AnchorPoint = Vector2.new(0.5, 0)
+    base.Size = UDim2.new(0, 160, 0, 30)
     base.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
     base.BorderSizePixel = 0
     base.Parent = contentFrame
@@ -167,9 +176,8 @@ local function makeToggle(text, order)
     end)
 end
 
--- Create toggles
-makeToggle("Auto Gift", 1)
-makeToggle("Freeze Player", 2)
+-- Create the toggle
+makeToggle("Auto Gift")
 
 -- Minimize Function
 local minimized = false
