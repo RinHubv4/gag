@@ -11,8 +11,8 @@ gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 200, 0, 230)
-main.Position = UDim2.new(0.5, -100, 0.5, -115)
+main.Size = UDim2.new(0, 200, 0, 160)
+main.Position = UDim2.new(0.5, -100, 0.5, -80)
 main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 main.BorderSizePixel = 0
 main.Parent = gui
@@ -95,27 +95,11 @@ contentFrame.Position = UDim2.new(0, 5, 0, 35)
 contentFrame.BackgroundTransparency = 1
 contentFrame.Parent = main
 
--- Username Input
-local userInput = Instance.new("TextBox")
-userInput.Size = UDim2.new(0.9, 0, 0, 30)
-userInput.Position = UDim2.new(0.5, 0, 0, 0)
-userInput.AnchorPoint = Vector2.new(0.5, 0)
-userInput.PlaceholderText = "Enter Username"
-userInput.TextColor3 = Color3.fromRGB(0, 0, 0)
-userInput.Font = Enum.Font.Gotham
-userInput.TextSize = 14
-userInput.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
-userInput.Parent = contentFrame
-
-local userCorner = Instance.new("UICorner")
-userCorner.CornerRadius = UDim.new(0, 6)
-userCorner.Parent = userInput
-
--- Toggle Generator
+-- Toggle Button Factory
 local function makeToggle(text, order)
     local base = Instance.new("Frame")
     base.Size = UDim2.new(0.9, 0, 0, 30)
-    base.Position = UDim2.new(0.5, 0, 0, (order - 1) * 40 + 40)
+    base.Position = UDim2.new(0.5, 0, 0, (order - 1) * 40)
     base.AnchorPoint = Vector2.new(0.5, 0)
     base.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
     base.BorderSizePixel = 0
@@ -171,11 +155,9 @@ local function makeToggle(text, order)
 end
 
 -- Create Toggles
-makeToggle("Auto Gift", 1)
-makeToggle("Freeze Player", 2)
-
--- Update main frame height
-main.Size = UDim2.new(0, 200, 0, 230)
+makeToggle("Username Input", 1)
+makeToggle("Auto Gift", 2)
+makeToggle("Freeze Player", 3)
 
 -- Minimize Function
 local minimized = false
@@ -201,7 +183,7 @@ exitBtn.MouseButton1Click:Connect(function()
     gui:Destroy()
 end)
 
--- Dragging Support
+-- Dragging Support (Mobile + PC)
 local dragging
 local dragInput
 local dragStart
