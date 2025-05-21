@@ -4,15 +4,16 @@ local UIS = game:GetService("UserInputService")
 local TS = game:GetService("TweenService")
 
 -- UI Setup
+local player = Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
 gui.ResetOnSpawn = false
 gui.Name = "RinHubUI"
-gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+gui.Parent = player:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 200, 0, 210)
-main.Position = UDim2.new(0.5, -100, 0.5, -105)
+main.Size = UDim2.new(0, 200, 0, 250)
+main.Position = UDim2.new(0.5, -100, 0.5, -125)
 main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 main.BorderSizePixel = 0
 main.Parent = gui
@@ -90,54 +91,29 @@ exitCorner.Parent = exitBtn
 
 -- Content Frame
 local contentFrame = Instance.new("Frame")
-contentFrame.Size = UDim2.new(1, -10, 0, 170)
+contentFrame.Size = UDim2.new(1, -10, 0, 180)
 contentFrame.Position = UDim2.new(0, 5, 0, 35)
 contentFrame.BackgroundTransparency = 1
 contentFrame.Parent = main
 
--- Username label and button instead of toggle
-local usernameLabel = Instance.new("TextLabel")
-usernameLabel.Size = UDim2.new(0.9, 0, 0, 30)
-usernameLabel.Position = UDim2.new(0.5, 0, 0, 0)
-usernameLabel.AnchorPoint = Vector2.new(0.5, 0)
-usernameLabel.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
-usernameLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
-usernameLabel.Text = "Enter Username"
-usernameLabel.Font = Enum.Font.Gotham
-usernameLabel.TextSize = 14
-usernameLabel.TextXAlignment = Enum.TextXAlignment.Center
-usernameLabel.Parent = contentFrame
+-- Username Input (centered)
+local usernameInput = Instance.new("TextBox")
+usernameInput.Size = UDim2.new(0.9, 0, 0, 30)
+usernameInput.Position = UDim2.new(0.5, 0, 0, 0)
+usernameInput.AnchorPoint = Vector2.new(0.5, 0)
+usernameInput.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+usernameInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+usernameInput.PlaceholderText = "Enter Username"
+usernameInput.Font = Enum.Font.Gotham
+usernameInput.TextSize = 14
+usernameInput.ClearTextOnFocus = false
+usernameInput.Parent = contentFrame
 
-local setUserBtn = Instance.new("TextButton")
-setUserBtn.Size = UDim2.new(0.9, 0, 0, 30)
-setUserBtn.Position = UDim2.new(0.5, 0, 0, 40)
-setUserBtn.AnchorPoint = Vector2.new(0.5, 0)
-setUserBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-setUserBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-setUserBtn.Text = "Set Username"
-setUserBtn.Font = Enum.Font.GothamBold
-setUserBtn.TextSize = 14
-setUserBtn.Parent = contentFrame
-
-local btnCorner = Instance.new("UICorner")
-btnCorner.CornerRadius = UDim.new(0, 6)
-btnCorner.Parent = setUserBtn
-
-local username = nil
-
-setUserBtn.MouseButton1Click:Connect(function()
-    -- This is where you can prompt user for username input via another method if needed.
-    -- For now, setting a static username as example:
-    username = "ExampleUser"
-    usernameLabel.Text = "Username: "..username
-    print("Username set to:", username)
-end)
-
--- Toggle function (simplified for reuse)
+-- Function to create toggles
 local function makeToggle(text, order)
     local base = Instance.new("Frame")
     base.Size = UDim2.new(0.9, 0, 0, 30)
-    base.Position = UDim2.new(0.5, 0, 0, 80 + (order - 1) * 40) -- start from 80 for toggles after username
+    base.Position = UDim2.new(0.5, 0, 0, 40 + (order - 1) * 40)
     base.AnchorPoint = Vector2.new(0.5, 0)
     base.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
     base.BorderSizePixel = 0
@@ -192,14 +168,14 @@ local function makeToggle(text, order)
     end)
 end
 
--- Create Toggles
+-- Create toggles
 makeToggle("Auto Gift", 1)
 makeToggle("Freeze Player", 2)
 
--- Duplicate Button below toggles
+-- Duplicate Button (visual only)
 local duplicateBase = Instance.new("Frame")
 duplicateBase.Size = UDim2.new(0.9, 0, 0, 30)
-duplicateBase.Position = UDim2.new(0.5, 0, 0, 160)
+duplicateBase.Position = UDim2.new(0.5, 0, 0, 120)
 duplicateBase.AnchorPoint = Vector2.new(0.5, 0)
 duplicateBase.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 duplicateBase.BorderSizePixel = 0
@@ -222,18 +198,40 @@ local duplicateBtnCorner = Instance.new("UICorner")
 duplicateBtnCorner.CornerRadius = UDim.new(0, 6)
 duplicateBtnCorner.Parent = duplicateBtn
 
+-- Duplicate button logic: visually clone held tool near player for 5 seconds
 duplicateBtn.MouseButton1Click:Connect(function()
-    local player = Players.LocalPlayer
-    local backpack = player:FindFirstChild("Backpack")
-    if backpack then
-        for _, item in ipairs(backpack:GetChildren()) do
-            if item:IsA("Tool") then
-                local clone = item:Clone()
-                clone.Parent = backpack
-            end
-        end
+    local character = player.Character
+    if not character then return end
+
+    local tool = character:FindFirstChildOfClass("Tool")
+    if not tool then
+        print("No tool equipped to duplicate.")
+        return
     end
-    print("Inventory duplicated!")
+
+    if not tool:FindFirstChild("Handle") then
+        print("Tool has no Handle to duplicate.")
+        return
+    end
+
+    -- Clone the tool
+    local toolClone = tool:Clone()
+    toolClone.Parent = workspace
+
+    -- Position clone near player root part
+    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    if rootPart then
+        toolClone.Handle.CFrame = rootPart.CFrame * CFrame.new(2, 0, 0)
+    end
+
+    -- Destroy clone after 5 seconds
+    task.delay(5, function()
+        if toolClone and toolClone.Parent then
+            toolClone:Destroy()
+        end
+    end)
+
+    print("Duplicated visual of held item.")
 end)
 
 -- Minimize Function
