@@ -3,7 +3,6 @@ local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local TS = game:GetService("TweenService")
 
--- UI Setup
 local player = Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
 gui.ResetOnSpawn = false
@@ -12,8 +11,8 @@ gui.Parent = player:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 200, 0, 250)
-main.Position = UDim2.new(0.5, -100, 0.5, -125)
+main.Size = UDim2.new(0, 200, 0, 200)
+main.Position = UDim2.new(0.5, -100, 0.5, -100)
 main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 main.BorderSizePixel = 0
 main.Parent = gui
@@ -91,7 +90,7 @@ exitCorner.Parent = exitBtn
 
 -- Content Frame
 local contentFrame = Instance.new("Frame")
-contentFrame.Size = UDim2.new(1, -10, 0, 180)
+contentFrame.Size = UDim2.new(1, -10, 0, 140)
 contentFrame.Position = UDim2.new(0, 5, 0, 35)
 contentFrame.BackgroundTransparency = 1
 contentFrame.Parent = main
@@ -172,68 +171,6 @@ end
 makeToggle("Auto Gift", 1)
 makeToggle("Freeze Player", 2)
 
--- Duplicate Button (visual only)
-local duplicateBase = Instance.new("Frame")
-duplicateBase.Size = UDim2.new(0.9, 0, 0, 30)
-duplicateBase.Position = UDim2.new(0.5, 0, 0, 120)
-duplicateBase.AnchorPoint = Vector2.new(0.5, 0)
-duplicateBase.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
-duplicateBase.BorderSizePixel = 0
-duplicateBase.Parent = contentFrame
-
-local duplicateCorner = Instance.new("UICorner")
-duplicateCorner.CornerRadius = UDim.new(0, 6)
-duplicateCorner.Parent = duplicateBase
-
-local duplicateBtn = Instance.new("TextButton")
-duplicateBtn.Size = UDim2.new(1, 0, 1, 0)
-duplicateBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-duplicateBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-duplicateBtn.Text = "Duplicate"
-duplicateBtn.Font = Enum.Font.Gotham
-duplicateBtn.TextSize = 14
-duplicateBtn.Parent = duplicateBase
-
-local duplicateBtnCorner = Instance.new("UICorner")
-duplicateBtnCorner.CornerRadius = UDim.new(0, 6)
-duplicateBtnCorner.Parent = duplicateBtn
-
--- Duplicate button logic: visually clone held tool near player for 5 seconds
-duplicateBtn.MouseButton1Click:Connect(function()
-    local character = player.Character
-    if not character then return end
-
-    local tool = character:FindFirstChildOfClass("Tool")
-    if not tool then
-        print("No tool equipped to duplicate.")
-        return
-    end
-
-    if not tool:FindFirstChild("Handle") then
-        print("Tool has no Handle to duplicate.")
-        return
-    end
-
-    -- Clone the tool
-    local toolClone = tool:Clone()
-    toolClone.Parent = workspace
-
-    -- Position clone near player root part
-    local rootPart = character:FindFirstChild("HumanoidRootPart")
-    if rootPart then
-        toolClone.Handle.CFrame = rootPart.CFrame * CFrame.new(2, 0, 0)
-    end
-
-    -- Destroy clone after 5 seconds
-    task.delay(5, function()
-        if toolClone and toolClone.Parent then
-            toolClone:Destroy()
-        end
-    end)
-
-    print("Duplicated visual of held item.")
-end)
-
 -- Minimize Function
 local minimized = false
 local originalSize = main.Size
@@ -258,7 +195,7 @@ exitBtn.MouseButton1Click:Connect(function()
     gui:Destroy()
 end)
 
--- Dragging Support (Mobile + PC)
+-- Dragging Support
 local dragging
 local dragInput
 local dragStart
