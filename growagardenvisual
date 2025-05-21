@@ -11,8 +11,8 @@ gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 200, 0, 160)
-main.Position = UDim2.new(0.5, -100, 0.5, -80)
+main.Size = UDim2.new(0, 200, 0, 230)
+main.Position = UDim2.new(0.5, -100, 0.5, -115)
 main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 main.BorderSizePixel = 0
 main.Parent = gui
@@ -91,38 +91,32 @@ exitCorner.Parent = exitBtn
 -- Content Frame
 local contentFrame = Instance.new("Frame")
 contentFrame.Size = UDim2.new(1, -10, 1, -45)
-contentFrame.Position = UDim2.new(0.5, 0, 0, 35)
-contentFrame.AnchorPoint = Vector2.new(0.5, 0)
+contentFrame.Position = UDim2.new(0, 5, 0, 35)
 contentFrame.BackgroundTransparency = 1
 contentFrame.Parent = main
 
-local layout = Instance.new("UIListLayout")
-layout.Padding = UDim.new(0, 10)
-layout.SortOrder = Enum.SortOrder.LayoutOrder
-layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-layout.Parent = contentFrame
+-- Username Input
+local userInput = Instance.new("TextBox")
+userInput.Size = UDim2.new(0.9, 0, 0, 30)
+userInput.Position = UDim2.new(0.5, 0, 0, 0)
+userInput.AnchorPoint = Vector2.new(0.5, 0)
+userInput.PlaceholderText = "Enter Username"
+userInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+userInput.Font = Enum.Font.Gotham
+userInput.TextSize = 14
+userInput.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+userInput.Parent = contentFrame
 
--- Username Input Field
-local usernameInput = Instance.new("TextBox")
-usernameInput.Size = UDim2.new(0, 160, 0, 30)
-usernameInput.PlaceholderText = "Enter Username"
-usernameInput.TextColor3 = Color3.fromRGB(0, 0, 0)
-usernameInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
-usernameInput.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
-usernameInput.Font = Enum.Font.Gotham
-usernameInput.TextSize = 14
-usernameInput.Text = ""
-usernameInput.ClearTextOnFocus = false
-usernameInput.Parent = contentFrame
+local userCorner = Instance.new("UICorner")
+userCorner.CornerRadius = UDim.new(0, 6)
+userCorner.Parent = userInput
 
-local inputCorner = Instance.new("UICorner")
-inputCorner.CornerRadius = UDim.new(0, 6)
-inputCorner.Parent = usernameInput
-
--- Auto Gift Toggle
-local function makeToggle(text)
+-- Toggle Generator
+local function makeToggle(text, order)
     local base = Instance.new("Frame")
-    base.Size = UDim2.new(0, 160, 0, 30)
+    base.Size = UDim2.new(0.9, 0, 0, 30)
+    base.Position = UDim2.new(0.5, 0, 0, (order - 1) * 40 + 40)
+    base.AnchorPoint = Vector2.new(0.5, 0)
     base.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
     base.BorderSizePixel = 0
     base.Parent = contentFrame
@@ -176,8 +170,12 @@ local function makeToggle(text)
     end)
 end
 
--- Create the toggle
-makeToggle("Auto Gift")
+-- Create Toggles
+makeToggle("Auto Gift", 1)
+makeToggle("Freeze Player", 2)
+
+-- Update main frame height
+main.Size = UDim2.new(0, 200, 0, 230)
 
 -- Minimize Function
 local minimized = false
