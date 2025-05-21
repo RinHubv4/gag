@@ -11,8 +11,8 @@ gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 200, 0, 230)
-main.Position = UDim2.new(0.5, -100, 0.5, -115)
+main.Size = UDim2.new(0, 200, 0, 160)
+main.Position = UDim2.new(0.5, -100, 0.5, -80)
 main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 main.BorderSizePixel = 0
 main.Parent = gui
@@ -91,65 +91,40 @@ exitCorner.Parent = exitBtn
 -- Content Frame
 local contentFrame = Instance.new("Frame")
 contentFrame.Size = UDim2.new(1, -10, 1, -45)
-contentFrame.Position = UDim2.new(0, 5, 0, 35)
+contentFrame.Position = UDim2.new(0.5, 0, 0, 35)
+contentFrame.AnchorPoint = Vector2.new(0.5, 0)
 contentFrame.BackgroundTransparency = 1
 contentFrame.Parent = main
 
--- Layout
 local layout = Instance.new("UIListLayout")
 layout.Padding = UDim.new(0, 10)
 layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 layout.Parent = contentFrame
 
--- Update contentFrame size dynamically
-local function updateContentFrameSize()
-    local contentHeight = 35
-    local elementCount = #contentFrame:GetChildren()
-    for _, child in pairs(contentFrame:GetChildren()) do
-        if child:IsA("UIListLayout") then
-            elementCount = elementCount - 1
-        end
-    end
-    contentHeight = contentHeight + 40 * elementCount
-    contentFrame.Size = UDim2.new(1, -10, 0, contentHeight - 45)
-    main.Size = UDim2.new(0, 200, 0, contentHeight + 35)
-end
-
--- Username Input
-local inputFrame = Instance.new("Frame")
-inputFrame.Size = UDim2.new(0.9, 0, 0, 30)
-inputFrame.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
-inputFrame.BorderSizePixel = 0
-inputFrame.LayoutOrder = 1
-inputFrame.AnchorPoint = Vector2.new(0.5, 0)
-inputFrame.Position = UDim2.new(0.5, 0, 0, 0)
-inputFrame.Parent = contentFrame
+-- Username Input Field
+local usernameInput = Instance.new("TextBox")
+usernameInput.Size = UDim2.new(0, 160, 0, 30)
+usernameInput.PlaceholderText = "Enter Username"
+usernameInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+usernameInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+usernameInput.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+usernameInput.Font = Enum.Font.Gotham
+usernameInput.TextSize = 14
+usernameInput.Text = ""
+usernameInput.ClearTextOnFocus = false
+usernameInput.Parent = contentFrame
 
 local inputCorner = Instance.new("UICorner")
 inputCorner.CornerRadius = UDim.new(0, 6)
-inputCorner.Parent = inputFrame
+inputCorner.Parent = usernameInput
 
-local inputBox = Instance.new("TextBox")
-inputBox.Size = UDim2.new(1, -20, 1, 0)
-inputBox.Position = UDim2.new(0, 10, 0, 0)
-inputBox.BackgroundTransparency = 1
-inputBox.PlaceholderText = "Enter Username"
-inputBox.Text = ""
-inputBox.TextColor3 = Color3.fromRGB(0, 0, 0)
-inputBox.TextSize = 14
-inputBox.Font = Enum.Font.Gotham
-inputBox.ClearTextOnFocus = false
-inputBox.Parent = inputFrame
-
--- Toggle Template
-local function makeToggle(text, order, callback)
+-- Auto Gift Toggle
+local function makeToggle(text)
     local base = Instance.new("Frame")
-    base.Size = UDim2.new(0.9, 0, 0, 30)
+    base.Size = UDim2.new(0, 160, 0, 30)
     base.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
     base.BorderSizePixel = 0
-    base.LayoutOrder = order
-    base.AnchorPoint = Vector2.new(0.5, 0)
-    base.Position = UDim2.new(0.5, 0, 0, 0)
     base.Parent = contentFrame
 
     local baseCorner = Instance.new("UICorner")
@@ -198,18 +173,11 @@ local function makeToggle(text, order, callback)
         TS:Create(dot, TweenInfo.new(0.2), {
             Position = on and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
         }):Play()
-        if callback then
-            callback(on)
-        end
     end)
 end
 
--- Add Auto Gift Toggle
-makeToggle("Auto Gift", 2, function(state)
-    print("Auto Gift is now", state and "ON" or "OFF")
-end)
-
-updateContentFrameSize()
+-- Create the toggle
+makeToggle("Auto Gift")
 
 -- Minimize Function
 local minimized = false
@@ -235,7 +203,7 @@ exitBtn.MouseButton1Click:Connect(function()
     gui:Destroy()
 end)
 
--- Dragging Support (Mobile + PC)
+-- Dragging Support
 local dragging
 local dragInput
 local dragStart
