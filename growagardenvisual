@@ -207,7 +207,7 @@ local function createButton(text, callback)
 end
 
 -- Duplicate Equipped Tool Button
-createButton("Duplicate", function()
+createButton("Dupe Pet/Fruit", function()
     local player = Players.LocalPlayer
     local character = player.Character
     if character then
