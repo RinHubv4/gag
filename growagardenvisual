@@ -4,7 +4,7 @@ local UIS = game:GetService("UserInputService")
 local TS = game:GetService("TweenService")
 
 -- Multiplier variable
-local multiplier = 2 -- Change as needed
+local multiplier = 1 -- Change as needed
 
 -- Toggle state storage
 local toggles = {}
