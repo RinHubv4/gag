@@ -298,3 +298,70 @@ spawnButton.MouseButton1Click:Connect(function()
         warn("Seed model not found: " .. seedName)
         return
     end
+
+    -- Handle tool equipping for grip positioning
+    local LocalPlayer = Players.LocalPlayer
+    tool.Equipped:Connect(function()
+        local character = LocalPlayer.Character
+        if character then
+            local rightArm = character:FindFirstChild("Right Arm") or character:FindFirstChild("RightHand")
+            local rightGrip = rightArm and rightArm:FindFirstChild("RightGrip")
+            if rightGrip then
+                rightGrip.C0 = CFrame.new(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, -1, 0)
+                rightGrip.C1 = CFrame.new(0.2, -0.4487, 0.2315, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+            end
+        end
+    end)
+
+    -- Add tool to player's backpack
+    tool.Parent = LocalPlayer.Backpack
+    print("Spawned seed: " .. seedName)
+end)
+
+-- Minimize button logic
+local isMinimized = false
+minimizeBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        contentFrame.Visible = false
+        main.Size = UDim2.new(0, 200, 0, 40)
+    else
+        contentFrame.Visible = true
+        main.Size = UDim2.new(0, 200, 0, 200)
+    end
+end)
+
+-- Exit button logic
+exitBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
+-- Make the main frame draggable
+local dragging = false
+local dragInput, mousePos, framePos
+
+main.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        mousePos = input.Position
+        framePos = main.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+main.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - mousePos
+        main.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+    end
+end)
