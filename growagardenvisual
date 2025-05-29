@@ -2,6 +2,7 @@
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local TS = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Multiplier variable
 local multiplier = 1 -- Change as needed
@@ -221,133 +222,79 @@ createButton("Duplicate", function()
     end
 end)
 
--- Duplicate Seeds Button
-createButton("Dupe Seeds", function()
-    local player = Players.LocalPlayer
-    for _, item in pairs(player.Backpack:GetChildren()) do
-        if tostring(item):match("[X%d+]") and tostring(item):match("Seed") then
-            local count = tonumber(item.Name:match("(%d+)"))
-            if count then
-                item.Name = item.Name:gsub("(%d+)", tostring(count * multiplier))
-            end
-        end
-    end
-end)
+-- Removed the Dupe Seeds button completely
 
--- Minimize
-local minimized = false
-local originalSize = main.Size
-local minimizedSize = UDim2.new(0, 200, 0, 30)
-
-minimizeBtn.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    TS:Create(main, TweenInfo.new(0.3), {
-        Size = minimized and minimizedSize or originalSize
-    }):Play()
-    contentFrame.Visible = not minimized
-    bg.Visible = not minimized
-end)
-
--- Exit
-exitBtn.MouseButton1Click:Connect(function()
-    TS:Create(main, TweenInfo.new(0.2), {
-        Size = UDim2.new(0, 0, 0, 0),
-        Position = UDim2.new(0.5, 0, 0.5, 0)
-    }):Play()
-    task.wait(0.2)
-    gui:Destroy()
-end)
-
--- Dragging
-local dragging, dragInput, dragStart, startPos
-
-local function update(input)
-    local delta = input.Position - dragStart
-    main.Position = UDim2.new(
-        startPos.X.Scale,
-        startPos.X.Offset + delta.X,
-        startPos.Y.Scale,
-        startPos.Y.Offset + delta.Y
-    )
-end
-
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = main.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-UIS.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        update(input)
-    end
-end)
+-- Seed Spawner input and spawn button
 
 local seedName = ""
 
-SeedTab:CreateInput({
-    Name = "Seed Name",
-    PlaceholderText = "Carrot",
-    CurrentValue = "",
-    RemoveTextAfterFocusLost = false,
-    Callback = function(value)
-        seedName = value
+-- Seed Name Input
+local seedInput = Instance.new("TextBox")
+seedInput.Size = UDim2.new(0, 160, 0, 30)
+seedInput.PlaceholderText = "Enter Seed Name (e.g. Carrot)"
+seedInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+seedInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+seedInput.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+seedInput.Font = Enum.Font.Gotham
+seedInput.TextSize = 14
+seedInput.Text = ""
+seedInput.ClearTextOnFocus = false
+seedInput.Parent = contentFrame
+
+local seedInputCorner = Instance.new("UICorner")
+seedInputCorner.CornerRadius = UDim.new(0, 6)
+seedInputCorner.Parent = seedInput
+
+seedInput.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        seedName = seedInput.Text
     end
-})
+end)
 
-SeedTab:CreateButton({
-    Name = "Spawn",
-    Callback = function()
-        if not seedName or seedName == "" then
-            warn("Please enter a valid seed name")
-            return
-        end
+-- Spawn Button
+local spawnButton = Instance.new("TextButton")
+spawnButton.Size = UDim2.new(0, 160, 0, 30)
+spawnButton.Text = "Spawn Seed"
+spawnButton.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+spawnButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+spawnButton.Font = Enum.Font.GothamBold
+spawnButton.TextSize = 14
+spawnButton.Parent = contentFrame
 
-        -- Access seed data
-        local seedData = require(ReplicatedStorage.Data.SeedData)[seedName]
-        if not seedData then
-            warn("Seed not found: " .. seedName)
-            return
-        end
+local spawnButtonCorner = Instance.new("UICorner")
+spawnButtonCorner.CornerRadius = UDim.new(0, 6)
+spawnButtonCorner.Parent = spawnButton
 
-        -- Create new Tool instance
-        local tool = Instance.new("Tool")
-        tool.Name = seedData.SeedName .. " [X" .. (tool:GetAttribute("Quantity") or 0) + 1 .. "]"
-        tool:SetAttribute("ItemType", "Holdable")
-        tool:SetAttribute("SeedName", seedName)
-        tool:SetAttribute("Quantity", (tool:GetAttribute("Quantity") or 0) + 1)
-
-        -- Clone seed model and set as handle
-        local seedModel = ReplicatedStorage.Seed_Models:FindFirstChild(seedName)
-        if seedModel then
-            local handle = seedModel:Clone()
-            handle.Name = "Handle"
-            handle.Parent = tool
-        else
-            warn("Seed model not found: " .. seedName)
-            return
-        end
-
-        -- Handle tool equipping for grip positioning
-        tool.Equipped:Connect(function()
-            local character = LocalPlayer.Character
-            if character then
-                local rightArm = character:WaitForChild("Right Arm")
-                local rightGrip = rightArm:WaitForChild("RightGrip")
-                rightGrip.C0 = CFrame.new(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, -1, 0)
-                rightGrip.C1 = CFrame.new(0.2, -0.448717117, 0.231557086, 1, 0, 0, 0, 1, 0, 0, 0, 1)
-            end
-        end)
-
-        -- Add tool to player's backpack
-        tool.Parent = LocalPlayer.Backpack
-        print("Spawned seed: " .. seedName)
+spawnButton.MouseButton1Click:Connect(function()
+    seedName = seedInput.Text
+    if not seedName or seedName == "" then
+        warn("Please enter a valid seed name")
+        return
     end
-})
+
+    -- Access seed data
+    local seedDataModule = ReplicatedStorage:WaitForChild("Data"):WaitForChild("SeedData")
+    local seedData = require(seedDataModule)[seedName]
+
+    if not seedData then
+        warn("Seed not found: " .. seedName)
+        return
+    end
+
+    -- Create new Tool instance
+    local tool = Instance.new("Tool")
+    tool.Name = seedData.SeedName .. " [X1]"
+    tool:SetAttribute("ItemType", "Holdable")
+    tool:SetAttribute("SeedName", seedName)
+    tool:SetAttribute("Quantity", 1)
+
+    -- Clone seed model and set as handle
+    local seedModel = ReplicatedStorage:WaitForChild("Seed_Models"):FindFirstChild(seedName)
+    if seedModel then
+        local handle = seedModel:Clone()
+        handle.Name = "Handle"
+        handle.Parent = tool
+    else
+        warn("Seed model not found: " .. seedName)
+        return
+    end
