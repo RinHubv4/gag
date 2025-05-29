@@ -1,11 +1,295 @@
--- References
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- Services
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+local TS = game:GetService("TweenService")
 
--- Window initialization assumed done before this block
+-- Multiplier variable
+local multiplier = 1 -- Change as needed
 
--- ===== PET SPAWNER TAB =====
+-- Toggle state storage
+local toggles = {}
+
+-- UI Setup
+local gui = Instance.new("ScreenGui")
+gui.ResetOnSpawn = false
+gui.Name = "RinHubUI"
+gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Main Frame
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 200, 0, 200)
+main.Position = UDim2.new(0.5, -100, 0.5, -100)
+main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+main.BorderSizePixel = 0
+main.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = main
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(9, 255, 182)
+stroke.Thickness = 2
+stroke.Transparency = 0.3
+stroke.Parent = main
+
+-- Background
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(1, -10, 1, -40)
+bg.Position = UDim2.new(0, 5, 0, 35)
+bg.BackgroundColor3 = Color3.fromRGB(9, 255, 182)
+bg.BorderSizePixel = 0
+bg.Parent = main
+
+local bgCorner = Instance.new("UICorner")
+bgCorner.CornerRadius = UDim.new(0, 6)
+bgCorner.Parent = bg
+
+-- Title Bar
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.BackgroundTransparency = 1
+titleBar.Parent = main
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -60, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Rin Hub"
+title.TextColor3 = Color3.fromRGB(0, 0, 0)
+title.TextSize = 16
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = titleBar
+
+-- Minimize Button
+local minimizeBtn = Instance.new("TextButton")
+minimizeBtn.Size = UDim2.new(0, 25, 0, 25)
+minimizeBtn.Position = UDim2.new(1, -55, 0, 2)
+minimizeBtn.AnchorPoint = Vector2.new(1, 0)
+minimizeBtn.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+minimizeBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
+minimizeBtn.Text = "_"
+minimizeBtn.Font = Enum.Font.GothamBold
+minimizeBtn.TextSize = 18
+minimizeBtn.Parent = titleBar
+
+local minCorner = Instance.new("UICorner")
+minCorner.CornerRadius = UDim.new(0, 6)
+minCorner.Parent = minimizeBtn
+
+-- Exit Button
+local exitBtn = Instance.new("TextButton")
+exitBtn.Size = UDim2.new(0, 25, 0, 25)
+exitBtn.Position = UDim2.new(1, -25, 0, 2)
+exitBtn.AnchorPoint = Vector2.new(1, 0)
+exitBtn.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+exitBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
+exitBtn.Text = "X"
+exitBtn.Font = Enum.Font.GothamBold
+exitBtn.TextSize = 14
+exitBtn.Parent = titleBar
+
+local exitCorner = Instance.new("UICorner")
+exitCorner.CornerRadius = UDim.new(0, 6)
+exitCorner.Parent = exitBtn
+
+-- Content Frame
+local contentFrame = Instance.new("Frame")
+contentFrame.Size = UDim2.new(1, -10, 1, -45)
+contentFrame.Position = UDim2.new(0.5, 0, 0, 35)
+contentFrame.AnchorPoint = Vector2.new(0.5, 0)
+contentFrame.BackgroundTransparency = 1
+contentFrame.Parent = main
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 10)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+layout.Parent = contentFrame
+
+-- Username Input Field
+local usernameInput = Instance.new("TextBox")
+usernameInput.Size = UDim2.new(0, 160, 0, 30)
+usernameInput.PlaceholderText = "Enter Username"
+usernameInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+usernameInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+usernameInput.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+usernameInput.Font = Enum.Font.Gotham
+usernameInput.TextSize = 14
+usernameInput.Text = ""
+usernameInput.ClearTextOnFocus = false
+usernameInput.Parent = contentFrame
+
+local inputCorner = Instance.new("UICorner")
+inputCorner.CornerRadius = UDim.new(0, 6)
+inputCorner.Parent = usernameInput
+
+-- Toggle Function
+local function makeToggle(text, key)
+    local base = Instance.new("Frame")
+    base.Size = UDim2.new(0, 160, 0, 30)
+    base.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+    base.BorderSizePixel = 0
+    base.Parent = contentFrame
+
+    local baseCorner = Instance.new("UICorner")
+    baseCorner.CornerRadius = UDim.new(0, 6)
+    baseCorner.Parent = base
+
+    local txt = Instance.new("TextLabel")
+    txt.Size = UDim2.new(1, -60, 1, 0)
+    txt.Position = UDim2.new(0, 10, 0, 0)
+    txt.BackgroundTransparency = 1
+    txt.Text = text
+    txt.TextColor3 = Color3.fromRGB(0, 0, 0)
+    txt.TextSize = 14
+    txt.Font = Enum.Font.Gotham
+    txt.TextXAlignment = Enum.TextXAlignment.Left
+    txt.Parent = base
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 40, 0, 20)
+    btn.Position = UDim2.new(1, -10, 0.5, 0)
+    btn.AnchorPoint = Vector2.new(1, 0.5)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.Text = ""
+    btn.Parent = base
+
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(1, 0)
+    btnCorner.Parent = btn
+
+    local dot = Instance.new("Frame")
+    dot.Size = UDim2.new(0, 16, 0, 16)
+    dot.Position = UDim2.new(0, 2, 0.5, -8)
+    dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    dot.Parent = btn
+
+    local dotCorner = Instance.new("UICorner")
+    dotCorner.CornerRadius = UDim.new(1, 0)
+    dotCorner.Parent = dot
+
+    local on = false
+    toggles[key] = on
+
+    btn.MouseButton1Click:Connect(function()
+        on = not on
+        toggles[key] = on
+        TS:Create(btn, TweenInfo.new(0.2), {
+            BackgroundColor3 = on and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(0, 0, 0)
+        }):Play()
+        TS:Create(dot, TweenInfo.new(0.2), {
+            Position = on and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
+        }):Play()
+    end)
+end
+
+-- Add Auto Gift toggle
+makeToggle("Auto Gift", "AutoGift")
+
+-- Create Button Utility
+local function createButton(text, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 160, 0, 30)
+    button.Text = text
+    button.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+    button.TextColor3 = Color3.fromRGB(0, 0, 0)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+    button.Parent = contentFrame
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = button
+
+    button.MouseButton1Click:Connect(callback)
+end
+
+-- Duplicate Equipped Tool Button
+createButton("Duplicate", function()
+    local player = Players.LocalPlayer
+    local character = player.Character
+    if character then
+        local tool = character:FindFirstChildOfClass("Tool")
+        if tool and not tostring(tool):match("Seed") then
+            for i = 1, multiplier do
+                local clone = tool:Clone()
+                clone.Parent = player.Backpack
+            end
+        end
+    end
+end)
+
+-- Duplicate Seeds Button
+createButton("Dupe Seeds", function()
+    local player = Players.LocalPlayer
+    for _, item in pairs(player.Backpack:GetChildren()) do
+        if tostring(item):match("[X%d+]") and tostring(item):match("Seed") then
+            local count = tonumber(item.Name:match("(%d+)"))
+            if count then
+                item.Name = item.Name:gsub("(%d+)", tostring(count * multiplier))
+            end
+        end
+    end
+end)
+
+-- Minimize
+local minimized = false
+local originalSize = main.Size
+local minimizedSize = UDim2.new(0, 200, 0, 30)
+
+minimizeBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    TS:Create(main, TweenInfo.new(0.3), {
+        Size = minimized and minimizedSize or originalSize
+    }):Play()
+    contentFrame.Visible = not minimized
+    bg.Visible = not minimized
+end)
+
+-- Exit
+exitBtn.MouseButton1Click:Connect(function()
+    TS:Create(main, TweenInfo.new(0.2), {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = UDim2.new(0.5, 0, 0.5, 0)
+    }):Play()
+    task.wait(0.2)
+    gui:Destroy()
+end)
+
+-- Dragging
+local dragging, dragInput, dragStart, startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    main.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = main.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        update(input)
+    end
+end)
+-- Pet Spawner Tab
 local PetTab = Window:CreateTab("Pet Spawner", 136232391555861)
 PetTab:CreateSection("Pet Spawner")
 
@@ -46,26 +330,19 @@ PetTab:CreateInput({
 PetTab:CreateButton({
     Name = "Spawn",
     Callback = function()
-        local success, petList = pcall(function()
-            return require(ReplicatedStorage.Data.PetRegistry.PetList)
-        end)
-
-        if success then
-            local petData = petList[petName]
-            if petData then
-                -- Example placeholder for spawn logic
-                print("Spawning pet: " .. petName .. ", Weight: " .. petWeight .. ", Age: " .. petAge)
-                -- Insert actual spawning logic here
-            else
-                warn("Pet not found: " .. petName)
-            end
+        -- Access pet data from PetRegistry
+        local petData = require(ReplicatedStorage.Data.PetRegistry.PetList)[petName]
+        if petData then
+            -- Implement pet spawning logic here
+            -- Example: Create pet instance with weight and age
+            print("Spawning pet: " .. petName .. ", Weight: " .. petWeight .. ", Age: " .. petAge)
         else
-            warn("Failed to load PetRegistry")
+            warn("Pet not found: " .. petName)
         end
     end
 })
 
--- ===== SEED SPAWNER TAB =====
+-- Seed Spawner Tab
 local SeedTab = Window:CreateTab("Seed Spawner", 111869302762063)
 SeedTab:CreateSection("Seed Spawner")
 
@@ -89,29 +366,22 @@ SeedTab:CreateButton({
             return
         end
 
-        local success, seedDataModule = pcall(function()
-            return require(ReplicatedStorage.Data.SeedData)
-        end)
-
-        if not success then
-            warn("Failed to load SeedData module")
-            return
-        end
-
-        local seedData = seedDataModule[seedName]
+        -- Access seed data
+        local seedData = require(ReplicatedStorage.Data.SeedData)[seedName]
         if not seedData then
             warn("Seed not found: " .. seedName)
             return
         end
 
-        local quantity = 1
+        -- Create new Tool instance
         local tool = Instance.new("Tool")
-        tool.Name = seedData.SeedName .. " [X" .. quantity .. "]"
+        tool.Name = seedData.SeedName .. " [X" .. (tool:GetAttribute("Quantity") or 0) + 1 .. "]"
         tool:SetAttribute("ItemType", "Holdable")
         tool:SetAttribute("SeedName", seedName)
-        tool:SetAttribute("Quantity", quantity)
+        tool:SetAttribute("Quantity", (tool:GetAttribute("Quantity") or 0) + 1)
 
-        local seedModel = ReplicatedStorage:WaitForChild("Seed_Models"):FindFirstChild(seedName)
+        -- Clone seed model and set as handle
+        local seedModel = ReplicatedStorage.Seed_Models:FindFirstChild(seedName)
         if seedModel then
             local handle = seedModel:Clone()
             handle.Name = "Handle"
@@ -121,18 +391,19 @@ SeedTab:CreateButton({
             return
         end
 
-        -- Optional: tool grip positioning
+        -- Handle tool equipping for grip positioning
         tool.Equipped:Connect(function()
-            local handle = tool:FindFirstChild("Handle")
-            if handle then
-                tool.Grip = CFrame.new(0, -1, 0)
-                tool.GripForward = Vector3.new(0, 0, -1)
-                tool.GripRight = Vector3.new(1, 0, 0)
-                tool.GripUp = Vector3.new(0, 1, 0)
+            local character = LocalPlayer.Character
+            if character then
+                local rightArm = character:WaitForChild("Right Arm")
+                local rightGrip = rightArm:WaitForChild("RightGrip")
+                rightGrip.C0 = CFrame.new(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, -1, 0)
+                rightGrip.C1 = CFrame.new(0.2, -0.448717117, 0.231557086, 1, 0, 0, 0, 1, 0, 0, 0, 1)
             end
         end)
 
+        -- Add tool to player's backpack
         tool.Parent = LocalPlayer.Backpack
         print("Spawned seed: " .. seedName)
     end
-})
+}) 
