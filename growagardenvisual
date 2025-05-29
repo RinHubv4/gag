@@ -2,6 +2,9 @@
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local TS = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local LocalPlayer = Players.LocalPlayer
 
 -- Multiplier variable
 local multiplier = 1 -- Change as needed
@@ -13,7 +16,7 @@ local toggles = {}
 local gui = Instance.new("ScreenGui")
 gui.ResetOnSpawn = false
 gui.Name = "RinHubUI"
-gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
@@ -208,7 +211,7 @@ end
 
 -- Duplicate Equipped Tool Button
 createButton("Duplicate", function()
-    local player = Players.LocalPlayer
+    local player = LocalPlayer
     local character = player.Character
     if character then
         local tool = character:FindFirstChildOfClass("Tool")
@@ -277,64 +280,34 @@ UIS.InputChanged:Connect(function(input)
     end
 end)
 
+-- Seed spawner variables and UI
+
 local seedName = ""
 
-SeedTab:CreateInput({
-    Name = "Seed Name",
-    PlaceholderText = "Carrot",
-    CurrentValue = "",
-    RemoveTextAfterFocusLost = false,
-    Callback = function(value)
-        seedName = value
-    end
-})
+-- Seed Name Input Box
+local seedInput = Instance.new("TextBox")
+seedInput.Size = UDim2.new(0, 160, 0, 30)
+seedInput.PlaceholderText = "Enter Seed Name"
+seedInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+seedInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+seedInput.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+seedInput.Font = Enum.Font.Gotham
+seedInput.TextSize = 14
+seedInput.ClearTextOnFocus = false
+seedInput.Parent = contentFrame
 
-SeedTab:CreateButton({
-    Name = "Spawn",
-    Callback = function()
-        if not seedName or seedName == "" then
-            warn("Please enter a valid seed name")
-            return
-        end
+local seedInputCorner = Instance.new("UICorner")
+seedInputCorner.CornerRadius = UDim.new(0, 6)
+seedInputCorner.Parent = seedInput
 
-        -- Access seed data
-        local seedData = require(ReplicatedStorage.Data.SeedData)[seedName]
-        if not seedData then
-            warn("Seed not found: " .. seedName)
-            return
-        end
+seedInput:GetPropertyChangedSignal("Text"):Connect(function()
+    seedName = seedInput.Text
+end)
 
-        -- Create new Tool instance
-        local tool = Instance.new("Tool")
-        tool.Name = seedData.SeedName .. " [X" .. (tool:GetAttribute("Quantity") or 0) + 1 .. "]"
-        tool:SetAttribute("ItemType", "Holdable")
-        tool:SetAttribute("SeedName", seedName)
-        tool:SetAttribute("Quantity", (tool:GetAttribute("Quantity") or 0) + 1)
-
-        -- Clone seed model and set as handle
-        local seedModel = ReplicatedStorage.Seed_Models:FindFirstChild(seedName)
-        if seedModel then
-            local handle = seedModel:Clone()
-            handle.Name = "Handle"
-            handle.Parent = tool
-        else
-            warn("Seed model not found: " .. seedName)
-            return
-        end
-
-        -- Handle tool equipping for grip positioning
-        tool.Equipped:Connect(function()
-            local character = LocalPlayer.Character
-            if character then
-                local rightArm = character:WaitForChild("Right Arm")
-                local rightGrip = rightArm:WaitForChild("RightGrip")
-                rightGrip.C0 = CFrame.new(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, -1, 0)
-                rightGrip.C1 = CFrame.new(0.2, -0.448717117, 0.231557086, 1, 0, 0, 0, 1, 0, 0, 0, 1)
-            end
-        end)
-
-        -- Add tool to player's backpack
-        tool.Parent = LocalPlayer.Backpack
-        print("Spawned seed: " .. seedName)
-    end
-})
+-- Spawn Button
+local spawnButton = Instance.new("TextButton")
+spawnButton.Size = UDim2.new(0, 160, 0, 30)
+spawnButton.Text = "Spawn Seed"
+spawnButton.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+spawnButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+spawnButton.Font = Enum.Font.GothamBold
