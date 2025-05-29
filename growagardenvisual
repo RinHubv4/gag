@@ -19,7 +19,7 @@ gui.Parent = player:WaitForChild("PlayerGui")
 
 -- Main Frame
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 200, 0, 260)
+main.Size = UDim2.new(0, 200, 0, 260) -- increased height for all elements
 main.Position = UDim2.new(0.5, -100, 0.5, -130)
 main.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
 main.BorderSizePixel = 0
@@ -37,7 +37,7 @@ stroke.Parent = main
 
 -- Background
 local bg = Instance.new("Frame")
-bg.Size = UDim2.new(1, -10, 1, -60)
+bg.Size = UDim2.new(1, -10, 1, -60) -- adjusted height for content
 bg.Position = UDim2.new(0, 5, 0, 35)
 bg.BackgroundColor3 = Color3.fromRGB(9, 255, 182)
 bg.BorderSizePixel = 0
@@ -98,7 +98,7 @@ exitCorner.Parent = exitBtn
 
 -- Content Frame
 local contentFrame = Instance.new("Frame")
-contentFrame.Size = UDim2.new(1, -10, 1, -55)
+contentFrame.Size = UDim2.new(1, -10, 1, -55) -- adjusted height for content
 contentFrame.Position = UDim2.new(0.5, 0, 0, 35)
 contentFrame.AnchorPoint = Vector2.new(0.5, 0)
 contentFrame.BackgroundTransparency = 1
@@ -187,8 +187,10 @@ local function makeToggle(text, key)
     end)
 end
 
+-- Add Auto Gift toggle
 makeToggle("Auto Gift", "AutoGift")
 
+-- Create Button Utility
 local function createButton(text, callback)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 160, 0, 30)
@@ -206,6 +208,7 @@ local function createButton(text, callback)
     button.MouseButton1Click:Connect(callback)
 end
 
+-- Duplicate Equipped Tool Button
 createButton("Duplicate", function()
     local character = player.Character
     if character then
@@ -219,7 +222,7 @@ createButton("Duplicate", function()
     end
 end)
 
--- Drag and Window Minimize
+-- Minimize
 local minimized = false
 local originalSize = main.Size
 local minimizedSize = UDim2.new(0, 200, 0, 30)
@@ -233,6 +236,7 @@ minimizeBtn.MouseButton1Click:Connect(function()
     bg.Visible = not minimized
 end)
 
+-- Exit
 exitBtn.MouseButton1Click:Connect(function()
     TS:Create(main, TweenInfo.new(0.2), {
         Size = UDim2.new(0, 0, 0, 0),
@@ -242,7 +246,7 @@ exitBtn.MouseButton1Click:Connect(function()
     gui:Destroy()
 end)
 
--- Drag
+-- Dragging (mobile + desktop support)
 local dragging, dragInput, dragStart, startPos
 
 local function update(input)
@@ -281,10 +285,12 @@ UIS.InputChanged:Connect(function(input)
     end
 end)
 
--- ✅ SEED SPAWNER INPUT + BUTTON FIXED
+-- Seed Spawner UI Elements
+
 local seedName = ""
 
-local seedInput = Instance.new("TextBox")
+-- Seed name input
+local seedInput = Instance.new("")
 seedInput.Size = UDim2.new(0, 160, 0, 30)
 seedInput.PlaceholderText = "Enter Seed Name"
 seedInput.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -303,7 +309,8 @@ seedInput:GetPropertyChangedSignal("Text"):Connect(function()
     seedName = seedInput.Text
 end)
 
-local spawnBtn = Instance.new("TextButton")
+-- Spawn Button
+local spawnBtn = Instance.new("")
 spawnBtn.Size = UDim2.new(0, 160, 0, 30)
 spawnBtn.Text = "Spawn Seed"
 spawnBtn.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
@@ -317,7 +324,7 @@ spawnBtnCorner.CornerRadius = UDim.new(0, 6)
 spawnBtnCorner.Parent = spawnBtn
 
 spawnBtn.MouseButton1Click:Connect(function()
-    if seedName == "" then
+    if seedName == "" or not seedName then
         warn("Please enter a valid seed name")
         return
     end
@@ -334,6 +341,7 @@ spawnBtn.MouseButton1Click:Connect(function()
         return
     end
 
+    -- Look for existing tool with this seed in Backpack
     local backpack = player:WaitForChild("Backpack")
     local existingTool = nil
     for _, tool in pairs(backpack:GetChildren()) do
@@ -344,15 +352,17 @@ spawnBtn.MouseButton1Click:Connect(function()
     end
 
     if existingTool then
+        -- Increase quantity attribute
         local currentQty = existingTool:GetAttribute("Quantity") or 1
         existingTool:SetAttribute("Quantity", currentQty + 1)
         existingTool.Name = seedData.SeedName .. " [X" .. (currentQty + 1) .. "]"
     else
+        -- Create new tool
         local tool = Instance.new("Tool")
+        tool.Name = seedData.SeedName .. " [X1]"
         tool:SetAttribute("ItemType", "Holdable")
         tool:SetAttribute("SeedName", seedName)
         tool:SetAttribute("Quantity", 1)
-        tool.Name = seedData.SeedName .. " [X1]"
 
         local seedModel = ReplicatedStorage.Seed_Models:FindFirstChild(seedName)
         if seedModel then
