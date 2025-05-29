@@ -309,6 +309,20 @@ seedInput:GetPropertyChangedSignal("Text"):Connect(function()
     seedName = seedInput.Text
 end)
 
+-- Spawn Button
+local spawnBtn = Instance.new("")
+spawnBtn.Size = UDim2.new(0, 160, 0, 30)
+spawnBtn.Text = "Spawn Seed"
+spawnBtn.BackgroundColor3 = Color3.fromRGB(3, 244, 202)
+spawnBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
+spawnBtn.Font = Enum.Font.GothamBold
+spawnBtn.TextSize = 14
+spawnBtn.Parent = contentFrame
+
+local spawnBtnCorner = Instance.new("UICorner")
+spawnBtnCorner.CornerRadius = UDim.new(0, 6)
+spawnBtnCorner.Parent = spawnBtn
+
 spawnBtn.MouseButton1Click:Connect(function()
     if seedName == "" or not seedName then
         warn("Please enter a valid seed name")
@@ -327,7 +341,6 @@ spawnBtn.MouseButton1Click:Connect(function()
         return
     end
 
-    -- Look for existing tool with this seed in Backpack
     local backpack = player:WaitForChild("Backpack")
     local existingTool = nil
     for _, tool in pairs(backpack:GetChildren()) do
@@ -338,17 +351,15 @@ spawnBtn.MouseButton1Click:Connect(function()
     end
 
     if existingTool then
-        -- Increase quantity attribute
         local currentQty = existingTool:GetAttribute("Quantity") or 1
         existingTool:SetAttribute("Quantity", currentQty + 1)
         existingTool.Name = seedData.SeedName .. " [X" .. (currentQty + 1) .. "]"
     else
-        -- Create new tool
         local tool = Instance.new("Tool")
-        tool.Name = seedData.SeedName .. " [X1]"
         tool:SetAttribute("ItemType", "Holdable")
         tool:SetAttribute("SeedName", seedName)
         tool:SetAttribute("Quantity", 1)
+        tool.Name = seedData.SeedName .. " [X1]"
 
         local seedModel = ReplicatedStorage.Seed_Models:FindFirstChild(seedName)
         if seedModel then
